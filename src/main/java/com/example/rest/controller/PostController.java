@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 public class PostController {
 
+    @Autowired
     private final PostService postService;
 
     @Autowired
@@ -23,8 +24,7 @@ public class PostController {
 
     @PostMapping(value = "/posts")
     public ResponseEntity<?> create(@RequestBody Post post) {
-        postService.create(post);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(postService.create(post), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/posts")
@@ -47,29 +47,19 @@ public class PostController {
 
     @PutMapping(value = "/posts/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") int id, @RequestBody Post post) {
-        final boolean updated = postService.update(post, id);
-
-        return updated
-                ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(postService.update(post, id), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/posts/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") int id) {
-        final boolean deleted = postService.delete(id);
-
-        return deleted
-                ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        postService.delete(id);
+        return new ResponseEntity<>("Deleted", HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/posts")
     public ResponseEntity<?> bulkDelete() {
-        final boolean deleted = postService.bulkDelete();
-
-        return deleted
-                ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        postService.bulkDelete();
+        return new ResponseEntity<>("Deleted all", HttpStatus.OK);
     }
 
 

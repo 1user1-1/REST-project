@@ -1,26 +1,45 @@
 package com.example.rest.model;
 
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.boot.autoconfigure.web.WebProperties;
+
 import java.util.Date;
 
+@Entity
+@Data
+@Table(name = "posts")
 public class Post {
+    public Post(){
 
+    }
+
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "content", nullable = false)
     private String content;
 
+    @CreationTimestamp
+    @Column(name = "creationDate", nullable = false)
     private Date creationDate;
 
+    @UpdateTimestamp
+    @Column(name = "modificationDate", nullable = false)
     private Date modificationDate;
 
-    public Post(int id, String name, String content, Date creationDate, Date modificationDate) {
-        this.id = id;
-        this.name = name;
-        this.content = content;
-        this.creationDate = new Date();
-        this.modificationDate = new Date();
-    }
+
+
     public Integer getId() {
         return id;
     }

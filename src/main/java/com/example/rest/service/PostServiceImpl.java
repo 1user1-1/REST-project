@@ -1,68 +1,64 @@
 package com.example.rest.service;
 
 import com.example.rest.model.Post;
+import com.example.rest.repository.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class PostServiceImpl implements PostService {
-    private static final Map<Integer, Post> POST_REPOSITORY_MAP = new HashMap<>();
-
-    private static final AtomicInteger POST_ID = new AtomicInteger();
+    @Autowired
+    private PostRepository postRepository;
 
     @Override
-    public void create(Post post) {
-        final int postId = POST_ID.getAndIncrement();
-        post.setId(postId);
-        POST_REPOSITORY_MAP.put(postId, post);
+    public Post create(Post post) {
+        return postRepository.save(post);
     }
 
     @Override
     public List<Post> readAll() {
-        return new ArrayList<>(POST_REPOSITORY_MAP.values());
+        return postRepository.findAll();
     }
 
     @Override
     public Post read(int id) {
-        return POST_REPOSITORY_MAP.get(id);
+        Optional<Post> post = postRepository.findById(id);
+        if(post.isPresent()) {
+            return post.get();
+        }else {
+            throw new RuntimeException("Post not found");
+        }
+
+
+
     }
 
     @Override
-    public boolean update(Post post, int id) {
-        if (POST_REPOSITORY_MAP.containsKey(id)) {
-            post.setId(id);
-            Post exPost = POST_REPOSITORY_MAP.get(id);
-            post.setCreationDate(exPost.getCreationDate());
-            POST_REPOSITORY_MAP.put(id, post);
-            return true;
-        }
+    public Post update(Post post, int id) {
+        Post existingPost = postRepository.findById(id).orElseThrow(
+                ()-> new RuntimeException()
+        );
+        existingPost.setName(post.getName());
+        existingPost.setContent(post.getContent());
 
-        return false;
+        postRepository.save(existingPost);
+        return existingPost;
     }
 
     @Override
-    public boolean delete(int id) {
-        if (POST_REPOSITORY_MAP.containsKey(id)) {
-            POST_REPOSITORY_MAP.remove(id);
-            return true;
-        }
-        return false;
+    public void delete(int id) {
+        postRepository.findById(id).orElseThrow(() -> new RuntimeException());
+        postRepository.deleteById(id);
     }
 
     @Override
-    public boolean bulkDelete(){
-        if(POST_REPOSITORY_MAP.isEmpty()){
-            return false;
-        }
-        POST_REPOSITORY_MAP.clear();
-        return true;
+    public void bulkDelete(){
+        postRepository.deleteAll();
     }
 
 
